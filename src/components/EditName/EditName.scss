@@ -1,0 +1,11 @@
+// Ajout d'un toogle pour afficher le formulaire ou non selon le click sur le bouton edit Name
+
+// .toogle-edit-name{
+//   display: none;
+// }
+input:disabled {
+  cursor: not-allowed;
+  background-color: silver;
+  color: #4f4f4f;
+  border: 2px solid #a0a0a0;
+}
