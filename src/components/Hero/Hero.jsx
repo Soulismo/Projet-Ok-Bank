@@ -1,5 +1,5 @@
 import React from "react";
-import bankTree from "../Hero/pourquoi.jpeg"; // Ajustez le chemin selon vos besoins
+import bankTree from "../Hero/pourquoi.webp"; // Ajustez le chemin selon vos besoins
 
 const Hero = () => {
   const heroStyle = {

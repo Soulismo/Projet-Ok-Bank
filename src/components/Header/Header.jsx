@@ -1,5 +1,5 @@
 //Variable pour manipuler le store redux
-import logo from "../../../src/assets/argentBankLogo.png";
+import logo from "../../../src/assets/argentBankLogo.webp";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 import { logoutUser } from "../../redux/loginSlice";
