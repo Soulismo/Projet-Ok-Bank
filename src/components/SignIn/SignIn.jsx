@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../Button/Button";
 import { useDispatch } from "react-redux";
@@ -11,9 +11,35 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false); // État pour gérer le formulaire affiché
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      autoLogin(token);
+    }
+  }, []);
+
+  const autoLogin = async (token) => {
+    try {
+      dispatch(loginUser(token));
+      const userInfo = await getUserProfile(token);
+      dispatch(
+        infoUser({
+          email: userInfo.body.email,
+          firstName: userInfo.body.firstName,
+          lastName: userInfo.body.lastName,
+          userName: userInfo.body.userName,
+        })
+      );
+      navigate("/user");
+    } catch (error) {
+      console.error("Erreur lors de la connexion automatique:", error);
+      localStorage.removeItem("token");
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,6 +50,8 @@ const SignIn = () => {
 
       if (rememberMe) {
         localStorage.setItem("token", token);
+      } else {
+        localStorage.removeItem("token");
       }
 
       const userInfo = await getUserProfile(token);
@@ -47,7 +75,7 @@ const SignIn = () => {
 
   const toggleForm = () => {
     setIsSignUp((prev) => !prev);
-    setError(""); // Réinitialiser les erreurs lors du changement de formulaire
+    setError("");
   };
 
   return (
@@ -56,12 +84,14 @@ const SignIn = () => {
         <i className="fa fa-user-circle sign-in-icon"></i>
         <h1>{isSignUp ? "Sign Up" : "Sign In"}</h1>
         {!isSignUp ? (
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} name="login-form" id="login-form">
             <div className="input-wrapper">
-              <label htmlFor="userEmail">User Email</label>
+              <label htmlFor="email">User Email</label>
               <input
                 type="email"
-                id="userEmail"
+                id="email"
+                name="email"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="exemple@gmail.com"
@@ -73,9 +103,11 @@ const SignIn = () => {
               <input
                 type="password"
                 id="password"
-                required
+                name="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
             <div className="input-remember">
@@ -87,7 +119,11 @@ const SignIn = () => {
               />
               <label htmlFor="remember-me">Remember me</label>
             </div>
-            <Button btnText="Sign In" className="sign-in-button" />
+            <Button
+              btnText="Sign In"
+              className="sign-in-button"
+              type="submit"
+            />
           </form>
         ) : (
           <Signup />
