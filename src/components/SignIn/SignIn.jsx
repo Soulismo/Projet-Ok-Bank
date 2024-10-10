@@ -18,22 +18,21 @@ const SignIn = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      autoLogin(token);
+      handleAutoLogin(token);
     }
   }, []);
 
-  const autoLogin = async (token) => {
+  const handleAutoLogin = async (token) => {
     try {
       dispatch(loginUser(token));
       const userInfo = await getUserProfile(token);
-      dispatch(
-        infoUser({
-          email: userInfo.body.email,
-          firstName: userInfo.body.firstName,
-          lastName: userInfo.body.lastName,
-          userName: userInfo.body.userName,
-        })
-      );
+      const userInfos = {
+        email: userInfo.body.email,
+        firstName: userInfo.body.firstName,
+        lastName: userInfo.body.lastName,
+        userName: userInfo.body.userName,
+      };
+      await dispatch(infoUser(userInfos));
       navigate("/user");
     } catch (error) {
       console.error("Erreur lors de la connexion automatique:", error);
@@ -50,8 +49,6 @@ const SignIn = () => {
 
       if (rememberMe) {
         localStorage.setItem("token", token);
-      } else {
-        localStorage.removeItem("token");
       }
 
       const userInfo = await getUserProfile(token);
@@ -84,14 +81,12 @@ const SignIn = () => {
         <i className="fa fa-user-circle sign-in-icon"></i>
         <h1>{isSignUp ? "Sign Up" : "Sign In"}</h1>
         {!isSignUp ? (
-          <form onSubmit={handleLogin} name="login-form" id="login-form">
+          <form onSubmit={handleLogin}>
             <div className="input-wrapper">
-              <label htmlFor="email">User Email</label>
+              <label htmlFor="userEmail">User Email</label>
               <input
                 type="email"
-                id="email"
-                name="email"
-                autoComplete="username"
+                id="userEmail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="exemple@gmail.com"
@@ -103,11 +98,9 @@ const SignIn = () => {
               <input
                 type="password"
                 id="password"
-                name="password"
-                autoComplete="current-password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
               />
             </div>
             <div className="input-remember">
@@ -119,11 +112,7 @@ const SignIn = () => {
               />
               <label htmlFor="remember-me">Remember me</label>
             </div>
-            <Button
-              btnText="Sign In"
-              className="sign-in-button"
-              type="submit"
-            />
+            <Button btnText="Sign In" className="sign-in-button" />
           </form>
         ) : (
           <Signup />
